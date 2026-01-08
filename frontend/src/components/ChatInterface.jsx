@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import './ChatInterface.css'
 
-const API_URL = 'http://localhost:8000/chat'
+// API URL configuration for different environments
+const API_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? 'https://hospital-ai-agent-2.onrender.com/chat'
+    : 'http://localhost:8000/chat')
 
 function ChatInterface() {
   const [messages, setMessages] = useState([
