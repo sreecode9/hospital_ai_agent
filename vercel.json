@@ -2,17 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "start.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "start.py"
+      "dest": "api/index.py"
     }
-  ],
-  "env": {
-    "SUPABASE_DISABLE_PROXY": "true"
-  }
+  ]
 }
