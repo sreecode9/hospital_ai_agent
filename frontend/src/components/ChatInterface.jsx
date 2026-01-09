@@ -4,7 +4,7 @@ import './ChatInterface.css'
 // API URL configuration for different environments
 const API_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD
-    ? 'https://hospital-ai-agent-2.onrender.com/chat'
+    ? 'https://hospital-ai-agent-backend.vercel.app/chat'
     : 'http://localhost:8000/chat')
 
 function ChatInterface() {
