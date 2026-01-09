@@ -1,59 +1,47 @@
 """
-Vercel serverless function for the symptom checker backend
+Simple test Vercel serverless function for symptom checker backend
 """
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import os
-import sys
 
-# Debug: Print environment variables and system info
-print("=== VERCEL DEBUG INFO ===")
-print(f"Python version: {sys.version}")
-print(f"Current working directory: {os.getcwd()}")
-print(f"Files in current directory: {os.listdir('.')}")
+print("=== SIMPLE TEST BACKEND ===")
+print(f"Python version: {__import__('sys').version}")
+print(f"Working directory: {os.getcwd()}")
+print(f"GOOGLE_API_KEY present: {bool(os.getenv('GOOGLE_API_KEY'))}")
 
-# Check environment variables
-google_key = os.getenv('GOOGLE_API_KEY')
-supabase_url = os.getenv('SUPABASE_URL')
-supabase_key = os.getenv('SUPABASE_KEY')
+# Create FastAPI app
+app = FastAPI(title="Symptom Checker Backend")
 
-print(f"GOOGLE_API_KEY exists: {bool(google_key)}")
-print(f"SUPABASE_URL exists: {bool(supabase_url)}")
-print(f"SUPABASE_KEY exists: {bool(supabase_key)}")
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# If any required env vars are missing, return a simple error response
-if not google_key or not supabase_url or not supabase_key:
-    print("❌ Missing required environment variables")
-    # We'll handle this in the app initialization below
-else:
-    print("✅ All required environment variables found")
+class ChatRequest(BaseModel):
+    message: str
+    session_id: str = "default"
 
-# Set environment variable to disable proxy (fix Supabase issue)
-os.environ['SUPABASE_DISABLE_PROXY'] = 'true'
+class ChatResponse(BaseModel):
+    response: str
+    risk_level: str | None = None
+    disclaimer: bool = True
 
-# Add backend directory to Python path
-backend_path = os.path.join(os.path.dirname(__file__), '..', 'backend')
-sys.path.insert(0, backend_path)
-print(f"Backend path added to sys.path: {backend_path}")
-print(f"Files in backend directory: {os.listdir('backend') if os.path.exists('backend') else 'backend not found'}")
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "message": "Simple test backend is working!"}
 
-print(f"GOOGLE_API_KEY exists: {bool(os.getenv('GOOGLE_API_KEY'))}")
-print(f"GOOGLE_API_KEY length: {len(os.getenv('GOOGLE_API_KEY', ''))}")
-print(f"SUPABASE_URL exists: {bool(os.getenv('SUPABASE_URL'))}")
-print(f"SUPABASE_KEY exists: {bool(os.getenv('SUPABASE_KEY'))}")
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    return ChatResponse(
+        response="Thank you for your message. This is a test response from the simplified backend.",
+        risk_level="low",
+        disclaimer=True
+    )
 
-print(f"Backend path added to sys.path: {backend_path}")
-print(f"Python path: {sys.path[:3]}...")  # Show first 3 paths
-
-try:
-    print("Attempting to import backend.main...")
-    from backend.main import app
-    print("✅ Successfully imported FastAPI app")
-    print(f"App type: {type(app)}")
-except Exception as e:
-    print(f"❌ Error importing app: {e}")
-    import traceback
-    print("Full traceback:")
-    traceback.print_exc()
-    raise
-
-# Export the FastAPI app for Vercel
-app = app
+print("✅ Simple test backend created successfully")
