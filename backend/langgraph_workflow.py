@@ -27,7 +27,12 @@ class SymptomState(TypedDict):
 class SymptomCheckerWorkflow:
     def __init__(self):
         api_key = os.getenv("GOOGLE_API_KEY")
-        self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3) if api_key else None
+        if not api_key:
+            raise ValueError(
+                "GOOGLE_API_KEY not found in environment variables. "
+                "Please set it in your Vercel project settings."
+            )
+        self.llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0.3)
         self.supabase = SupabaseClient()
         self.webhook_client = WebhookClient()
         self.graph = self._build_graph()

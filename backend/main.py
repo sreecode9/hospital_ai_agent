@@ -17,7 +17,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",     # Vite dev server
         "http://localhost:3000",     # Alternative dev server
-        "https://hospitalaiagent1.vercel.app",  # Deployed frontend
+        "https://hospitalaiagent1.vercel.app",  # Original frontend
+        "https://frontend-lake-nine-47.vercel.app",  # New frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
