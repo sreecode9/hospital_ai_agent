@@ -1,8 +1,12 @@
-from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 from typing import TypedDict
 from datetime import datetime
+
+# Set environment variable to disable proxy BEFORE importing supabase
+os.environ['SUPABASE_DISABLE_PROXY'] = 'true'
+
+from supabase import create_client, Client
 
 load_dotenv()
 
