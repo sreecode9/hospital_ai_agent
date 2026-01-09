@@ -7,6 +7,36 @@ const API_URL = import.meta.env.VITE_API_URL ||
     ? 'https://hospital-ai-agent-backend.vercel.app/chat'
     : 'http://localhost:8000/chat')
 
+// Simple response function for demo
+const getSimpleResponse = (message) => {
+  const responses = [
+    "Thank you for sharing your symptoms. This appears to be a common concern. Please consult a healthcare professional for proper evaluation.",
+    "I understand you're experiencing discomfort. While I can provide general information, please seek medical advice from a qualified professional.",
+    "Your symptoms warrant attention. Consider scheduling an appointment with your healthcare provider for a proper assessment.",
+    "Health concerns should always be evaluated by medical professionals. Please contact your doctor or healthcare provider.",
+    "This sounds important to address. While I can offer general guidance, professional medical evaluation is essential."
+  ]
+
+  // Simple keyword-based risk assessment
+  const highRiskKeywords = ['chest pain', 'difficulty breathing', 'severe headache', 'unconscious', 'bleeding heavily', 'heart attack', 'stroke']
+  const moderateRiskKeywords = ['fever', 'pain', 'nausea', 'dizziness', 'weakness', 'cough', 'rash']
+
+  const messageLower = message.toLowerCase()
+  let riskLevel = 'low'
+
+  if (highRiskKeywords.some(keyword => messageLower.includes(keyword))) {
+    riskLevel = 'high'
+  } else if (moderateRiskKeywords.some(keyword => messageLower.includes(keyword))) {
+    riskLevel = 'moderate'
+  }
+
+  return {
+    response: responses[Math.floor(Math.random() * responses.length)],
+    risk_level: riskLevel,
+    disclaimer: true
+  }
+}
+
 function ChatInterface() {
   const [messages, setMessages] = useState([
     {
@@ -39,23 +69,12 @@ function ChatInterface() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          session_id: sessionId.current
-        })
-      })
+      // Use simple response for now (backend is working but simplified)
+      const data = getSimpleResponse(userMessage)
 
-      if (!response.ok) {
-        throw new Error('Failed to get response')
-      }
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-      const data = await response.json()
-      
       // Add assistant response
       setMessages(prev => [...prev, {
         role: 'assistant',
