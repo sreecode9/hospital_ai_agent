@@ -126,7 +126,19 @@ function ChatInterface() {
           onClick={sendMessage}
           disabled={loading || !input.trim()}
         >
-          Send
+          {loading ? (
+            <>
+              <span className="spinner"></span>
+              Sending
+            </>
+          ) : (
+            <>
+              Send
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
+              </svg>
+            </>
+          )}
         </button>
       </div>
     </div>
