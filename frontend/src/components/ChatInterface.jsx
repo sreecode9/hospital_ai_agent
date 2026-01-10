@@ -7,6 +7,8 @@ const API_URL = import.meta.env.VITE_API_URL ||
     ? 'https://hospital-ai-agent-backend.vercel.app/chat'
     : 'http://localhost:8000/chat')
 
+// Force refresh marker: v2.1
+
 // Simple response function for demo
 const getSimpleResponse = (message) => {
   const responses = [
