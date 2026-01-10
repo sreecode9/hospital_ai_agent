@@ -65,7 +65,7 @@
   position: relative;
   z-index: 2;
   border-radius: 0 0 30px 30px;
-  animation: headerFadeIn 0.8s ease-out;
+  animation: headerFadeIn 1.2s ease-out;
   opacity: 0;
   animation-fill-mode: forwards;
 }
@@ -78,6 +78,33 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.chat-header-placeholder {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-pulse {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  animation: pulse 2s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
   }
 }
 

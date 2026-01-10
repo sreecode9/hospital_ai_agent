@@ -175,13 +175,17 @@ function ChatInterface() {
 
   // Initialize the interface with proper timing
   useEffect(() => {
-    // First show the header
-    setTimeout(() => {
-      setShowHeader(true)
-    }, 300)
+    const initSequence = async () => {
+      // Wait for header animation to complete (0.8s animation + buffer)
+      await new Promise(resolve => setTimeout(resolve, 1200))
 
-    // Then show the initial message
-    setTimeout(() => {
+      // Show header
+      setShowHeader(true)
+
+      // Wait for header to be visible, then show message
+      await new Promise(resolve => setTimeout(resolve, 400))
+
+      // Show the complete initial message
       setMessages([
         {
           role: 'assistant',
@@ -191,7 +195,9 @@ function ChatInterface() {
         }
       ])
       setShowInitialMessage(true)
-    }, 800)
+    }
+
+    initSequence()
   }, [])
 
   useEffect(() => {
@@ -269,10 +275,14 @@ function ChatInterface() {
 
   return (
     <div className="chat-interface">
-      {showHeader && (
+      {showHeader ? (
         <div className="chat-header">
           <h1>Symptom Checking Assistant</h1>
           <p className="subtitle">AI-powered health awareness guidance</p>
+        </div>
+      ) : (
+        <div className="chat-header-placeholder">
+          <div className="loading-pulse"></div>
         </div>
       )}
 
