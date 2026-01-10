@@ -462,11 +462,11 @@
   font-size: 1.05rem;
   outline: none;
   background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(248, 250, 252, 0.8) 100%);
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(248, 250, 252, 0.9) 100%);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  color: #1e293b;
+  color: #0f172a !important;
   font-weight: 450;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow:
@@ -476,21 +476,22 @@
 }
 
 .chat-input:focus {
-  border-color: rgba(102, 126, 234, 0.4);
+  border-color: rgba(102, 126, 234, 0.5);
   box-shadow:
-    0 0 0 4px rgba(102, 126, 234, 0.1),
-    0 8px 24px rgba(102, 126, 234, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    0 0 0 4px rgba(102, 126, 234, 0.15),
+    0 8px 24px rgba(102, 126, 234, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transform: translateY(-2px) scale(1.01);
   background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(248, 250, 252, 0.9) 100%);
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.95) 100%);
+  color: #0f172a !important;
 }
 
 .chat-input::placeholder {
-  color: #64748b;
+  color: #64748b !important;
   font-weight: 400;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .chat-input:disabled {
