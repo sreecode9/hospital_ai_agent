@@ -161,16 +161,11 @@ class SymptomAnalyzer {
 const analyzer = new SymptomAnalyzer()
 
 function ChatInterface() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      content: 'Hello! I\'m your AI-powered health awareness assistant. I can help you understand the possible seriousness of your symptoms and guide you on whether medical attention may be needed.\n\nPlease describe what symptoms you\'re experiencing, and I\'ll provide general health awareness guidance.',
-      riskLevel: null,
-      timestamp: new Date().toLocaleTimeString()
-    }
-  ])
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showHeader, setShowHeader] = useState(false)
+  const [showInitialMessage, setShowInitialMessage] = useState(false)
   const messagesEndRef = useRef(null)
   const sessionId = useRef(`session_${Date.now()}`)
 
@@ -178,12 +173,35 @@ function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
   }
 
+  // Initialize the interface with proper timing
   useEffect(() => {
-    // Immediate scroll for better UX
+    // First show the header
     setTimeout(() => {
-      scrollToBottom()
-    }, 100)
-  }, [messages])
+      setShowHeader(true)
+    }, 300)
+
+    // Then show the initial message
+    setTimeout(() => {
+      setMessages([
+        {
+          role: 'assistant',
+          content: 'Hello! I\'m your AI-powered health awareness assistant. I can help you understand the possible seriousness of your symptoms and guide you on whether medical attention may be needed.\n\nPlease describe what symptoms you\'re experiencing, and I\'ll provide general health awareness guidance.',
+          riskLevel: null,
+          timestamp: new Date().toLocaleTimeString()
+        }
+      ])
+      setShowInitialMessage(true)
+    }, 800)
+  }, [])
+
+  useEffect(() => {
+    if (showInitialMessage) {
+      // Scroll after initial message is shown
+      setTimeout(() => {
+        scrollToBottom()
+      }, 200)
+    }
+  }, [messages, showInitialMessage])
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return
@@ -251,11 +269,13 @@ function ChatInterface() {
 
   return (
     <div className="chat-interface">
-      <div className="chat-header">
-        <h1>Symptom Checking Assistant</h1>
-        <p className="subtitle">AI-powered health awareness guidance</p>
-      </div>
-      
+      {showHeader && (
+        <div className="chat-header">
+          <h1>Symptom Checking Assistant</h1>
+          <p className="subtitle">AI-powered health awareness guidance</p>
+        </div>
+      )}
+
       <div className="chat-messages">
         {messages.map((msg, idx) => (
           <div key={idx} className={`message ${msg.role}`}>
