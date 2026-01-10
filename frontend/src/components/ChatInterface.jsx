@@ -7,66 +7,166 @@ const API_URL = import.meta.env.VITE_API_URL ||
     ? 'https://hospital-ai-agent-backend.vercel.app/chat'
     : 'http://localhost:8000/chat')
 
-// Modern UI Version: v3.0 - Ultra Modern Healthcare Interface
+// Ultra Modern Healthcare AI Assistant v3.0 - Complete Implementation
 
-// Advanced AI responses with better risk assessment
-const getAdvancedResponse = (message) => {
-  const responses = {
-    high: [
-      "🚨 **HIGH PRIORITY ALERT** 🚨\n\nThis symptom pattern requires IMMEDIATE medical attention. Please contact emergency services (911) or go to the nearest emergency room right away. Do not delay seeking professional medical care.",
-      "⚠️ **URGENT MEDICAL ATTENTION REQUIRED** ⚠️\n\nYour symptoms suggest a potentially serious condition. Call emergency services immediately or have someone take you to the nearest hospital emergency department.",
-      "🆘 **EMERGENCY SITUATION** 🆘\n\nBased on your description, this requires immediate professional medical intervention. Please seek emergency care without delay."
-    ],
-    moderate: [
-      "⚡ **MODERATE CONCERN** ⚡\n\nThese symptoms should be evaluated by a healthcare provider within 24-48 hours. Consider contacting your primary care physician or visiting an urgent care center.",
-      "📋 **MEDICAL EVALUATION RECOMMENDED** 📋\n\nYour symptoms warrant professional assessment. Please schedule an appointment with your healthcare provider or visit a clinic for proper evaluation.",
-      "🔍 **FURTHER ASSESSMENT NEEDED** 🔍\n\nThese symptoms suggest you should consult with a medical professional. Consider seeing your doctor or visiting an urgent care facility."
-    ],
-    low: [
-      "💚 **GENERAL HEALTH INFORMATION** 💚\n\nWhile these symptoms may be concerning, they appear to be of lower urgency. Monitor your symptoms and consult a healthcare provider if they persist or worsen.",
-      "ℹ️ **HEALTH AWARENESS** ℹ️\n\nThis seems to be a common health concern. Stay hydrated, rest well, and monitor your symptoms. Seek medical advice if symptoms persist or change.",
-      "📖 **GENERAL GUIDANCE** 📖\n\nThese symptoms are often manageable with self-care. However, if they persist or worsen, please consult with a healthcare professional for personalized advice."
+class SymptomAnalyzer {
+  constructor() {
+    this.conversationState = {
+      symptoms: [],
+      duration: null,
+      severity: null,
+      riskLevel: null,
+      awaitingDuration: false
+    }
+  }
+
+  // Risk classification logic
+  assessRiskLevel(message) {
+    const messageLower = message.toLowerCase()
+
+    // HIGH RISK symptoms
+    const highRiskPatterns = [
+      /chest pain/i, /difficulty breathing/i, /severe headache/i, /unconscious/i,
+      /bleeding heavily/i, /heart attack/i, /stroke/i, /seizure/i,
+      /severe allergic reaction/i, /poisoning/i, /broken bone/i, /dislocation/i,
+      /severe burn/i, /electrocution/i, /drowning/i, /loss of consciousness/i,
+      /sudden weakness/i, /paralysis/i, /high fever with confusion/i,
+      /suicidal thoughts/i, /severe mental distress/i
     ]
+
+    // MODERATE RISK symptoms
+    const moderateRiskPatterns = [
+      /persistent pain/i, /fever.*days/i, /worsening symptoms/i, /repeated vomiting/i,
+      /blood in stool/i, /blood in urine/i, /confusion/i, /severe dizziness/i,
+      /rapid heartbeat/i, /difficulty swallowing/i, /severe rash/i, /eye injury/i,
+      /ear pain.*fever/i, /fever over 103/i, /severe pain/i
+    ]
+
+    if (highRiskPatterns.some(pattern => pattern.test(messageLower))) {
+      return 'HIGH'
+    } else if (moderateRiskPatterns.some(pattern => pattern.test(messageLower))) {
+      return 'MODERATE'
+    } else {
+      return 'LOW'
+    }
   }
 
-  // Enhanced keyword-based risk assessment
-  const highRiskKeywords = [
-    'chest pain', 'difficulty breathing', 'severe headache', 'unconscious', 'bleeding heavily',
-    'heart attack', 'stroke', 'seizure', 'severe allergic reaction', 'poisoning',
-    'broken bone', 'dislocation', 'severe burn', 'electrocution', 'drowning'
-  ]
-  const moderateRiskKeywords = [
-    'fever over 103', 'severe pain', 'persistent vomiting', 'blood in stool',
-    'blood in urine', 'confusion', 'severe dizziness', 'rapid heartbeat',
-    'difficulty swallowing', 'severe rash', 'eye injury', 'ear pain with fever'
-  ]
+  // Extract symptoms from message
+  extractSymptoms(message) {
+    const symptomPatterns = [
+      // Common symptoms
+      /\b(headache|pain|fever|cough|nausea|vomiting|dizziness|fatigue|weakness)\b/gi,
+      /\b(chest|back|stomach|joint|muscle|throat|ear|eye)\b.*?\b(pain|ache)\b/gi,
+      /\b(rash|swelling|bruising|bleeding|discharge)\b/gi,
+      /\b(difficulty breathing|shortness of breath|wheezing|coughing)\b/gi,
+      /\b(nausea|vomiting|diarrhea|constipation|abdominal pain)\b/gi
+    ]
 
-  const messageLower = message.toLowerCase()
-  let riskLevel = 'low'
+    const symptoms = []
+    symptomPatterns.forEach(pattern => {
+      const matches = message.match(pattern)
+      if (matches) {
+        symptoms.push(...matches)
+      }
+    })
 
-  if (highRiskKeywords.some(keyword => messageLower.includes(keyword))) {
-    riskLevel = 'high'
-  } else if (moderateRiskKeywords.some(keyword => messageLower.includes(keyword))) {
-    riskLevel = 'moderate'
+    return [...new Set(symptoms)] // Remove duplicates
   }
 
-  const responseList = responses[riskLevel]
-  const response = responseList[Math.floor(Math.random() * responseList.length)]
+  // Check if duration is mentioned
+  hasDuration(message) {
+    const durationPatterns = [
+      /\b(\d+)\s*(day|days|week|weeks|month|months|hour|hours)\b/i,
+      /\b(for|since)\s+(\d+)\s*(day|days|week|weeks|month|months|hour|hours)\b/i,
+      /\b(today|yesterday|this morning|last night)\b/i
+    ]
 
-  return {
-    response: response,
-    risk_level: riskLevel,
-    disclaimer: true,
-    timestamp: new Date().toLocaleTimeString()
+    return durationPatterns.some(pattern => pattern.test(message))
+  }
+
+  // Generate response based on current state
+  generateResponse(message) {
+    const symptoms = this.extractSymptoms(message)
+    const riskLevel = this.assessRiskLevel(message)
+    const hasDuration = this.hasDuration(message)
+
+    // Update conversation state
+    if (symptoms.length > 0) {
+      this.conversationState.symptoms = [...new Set([...this.conversationState.symptoms, ...symptoms])]
+    }
+
+    // If we don't have duration and haven't asked for it yet, ask for it
+    if (!hasDuration && !this.conversationState.duration && this.conversationState.symptoms.length > 0) {
+      this.conversationState.awaitingDuration = true
+      return {
+        type: 'question',
+        content: "How many days have you been experiencing these symptoms?",
+        riskLevel: null
+      }
+    }
+
+    // If this is a response to our duration question
+    if (this.conversationState.awaitingDuration) {
+      // Try to extract duration from this message
+      const durationMatch = message.match(/(\d+)\s*(day|days|week|weeks|month|months)/i)
+      if (durationMatch) {
+        this.conversationState.duration = durationMatch[0]
+        this.conversationState.awaitingDuration = false
+      }
+    }
+
+    // Generate final assessment response
+    const response = this.generateAssessmentResponse(riskLevel)
+    this.conversationState.riskLevel = riskLevel
+
+    return {
+      type: 'assessment',
+      content: response,
+      riskLevel: riskLevel,
+      symptoms: this.conversationState.symptoms,
+      duration: this.conversationState.duration
+    }
+  }
+
+  generateAssessmentResponse(riskLevel) {
+    const symptomSummary = this.conversationState.symptoms.length > 0
+      ? `Based on your description of ${this.conversationState.symptoms.join(', ')}`
+      : "Based on your symptoms"
+
+    let guidance = ""
+
+    switch (riskLevel) {
+      case 'HIGH':
+        guidance = `\n\n**URGENT MEDICAL ATTENTION REQUIRED**\n\nThis symptom pattern requires IMMEDIATE medical attention. Please contact emergency services (911) or go to the nearest emergency room right away. Do not delay seeking professional medical care.`
+        break
+
+      case 'MODERATE':
+        guidance = `\n\n**MEDICAL EVALUATION RECOMMENDED**\n\nThese symptoms should be evaluated by a healthcare provider within 24-48 hours. Consider contacting your primary care physician or visiting an urgent care center for proper assessment.`
+        break
+
+      case 'LOW':
+        guidance = `\n\n**GENERAL HEALTH AWARENESS**\n\nWhile these symptoms may be concerning, they appear to be of lower urgency. Monitor your symptoms closely and consult a healthcare provider if they persist, worsen, or if you have any concerns.`
+        break
+    }
+
+    const durationInfo = this.conversationState.duration
+      ? ` (lasting ${this.conversationState.duration})`
+      : ""
+
+    return `${symptomSummary}${durationInfo}:\n\n**Risk level: ${riskLevel}**${guidance}\n\n*This information is for awareness only and does not replace professional medical advice.*`
   }
 }
+
+// Initialize the analyzer
+const analyzer = new SymptomAnalyzer()
 
 function ChatInterface() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Hello! I\'m here to help you understand your symptoms better. Please describe what symptoms you\'re experiencing, and I\'ll provide general health awareness guidance.',
-      riskLevel: null
+      content: 'Hello! I\'m your AI-powered health awareness assistant. I can help you understand the possible seriousness of your symptoms and guide you on whether medical attention may be needed.\n\nPlease describe what symptoms you\'re experiencing, and I\'ll provide general health awareness guidance.',
+      riskLevel: null,
+      timestamp: new Date().toLocaleTimeString()
     }
   ])
   const [input, setInput] = useState('')
@@ -97,7 +197,7 @@ function ChatInterface() {
     }])
 
     try {
-      // Try to call the backend first
+      // First try to use the backend API
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
@@ -118,24 +218,23 @@ function ChatInterface() {
           timestamp: new Date().toLocaleTimeString()
         }])
       } else {
-        // Fallback to local advanced response
-        const data = getAdvancedResponse(userMessage)
-        setMessages(prev => [...prev, {
-          role: 'assistant',
-          content: data.response,
-          riskLevel: data.risk_level,
-          timestamp: data.timestamp
-        }])
+        throw new Error('Backend not available')
       }
     } catch (error) {
-      console.error('Error:', error)
-      // Fallback to local response
-      const data = getAdvancedResponse(userMessage)
+      console.error('Backend error, using local analysis:', error)
+
+      // Use local symptom analyzer as fallback
+      const analysis = analyzer.generateResponse(userMessage)
+
+      // Simulate typing delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 1500))
+
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: data.response,
-        riskLevel: data.risk_level,
-        timestamp: data.timestamp
+        content: analysis.content,
+        riskLevel: analysis.riskLevel,
+        timestamp: new Date().toLocaleTimeString(),
+        type: analysis.type
       }])
     } finally {
       setLoading(false)
@@ -160,18 +259,23 @@ function ChatInterface() {
         {messages.map((msg, idx) => (
           <div key={idx} className={`message ${msg.role}`}>
             <div className="message-content">
-              {msg.content}
+              {msg.content.split('\n').map((line, lineIdx) => (
+                <span key={lineIdx}>
+                  {line}
+                  {lineIdx < msg.content.split('\n').length - 1 && <br />}
+                </span>
+              ))}
               {msg.timestamp && (
                 <div className="message-timestamp">
                   {msg.timestamp}
                 </div>
               )}
-              {msg.riskLevel && (
-                <div className={`risk-badge risk-${msg.riskLevel}`}>
-                  {msg.riskLevel === 'high' && '🚨'}
-                  {msg.riskLevel === 'moderate' && '⚡'}
-                  {msg.riskLevel === 'low' && '💚'}
-                  {msg.riskLevel.toUpperCase()} PRIORITY
+              {msg.riskLevel && msg.riskLevel !== 'null' && (
+                <div className={`risk-badge risk-${msg.riskLevel.toLowerCase()}`}>
+                  {msg.riskLevel === 'HIGH' && '🚨'}
+                  {msg.riskLevel === 'MODERATE' && '⚡'}
+                  {msg.riskLevel === 'LOW' && '💚'}
+                  {msg.riskLevel} PRIORITY
                 </div>
               )}
             </div>
@@ -180,7 +284,9 @@ function ChatInterface() {
         {loading && (
           <div className="message assistant">
             <div className="message-content">
-              <span className="typing-indicator">Thinking...</span>
+              <span className="typing-indicator">
+                Analyzing symptoms<span className="dots">...</span>
+              </span>
             </div>
           </div>
         )}
