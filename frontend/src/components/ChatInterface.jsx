@@ -175,11 +175,14 @@ function ChatInterface() {
   const sessionId = useRef(`session_${Date.now()}`)
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'auto', block: 'end' })
   }
 
   useEffect(() => {
-    scrollToBottom()
+    // Immediate scroll for better UX
+    setTimeout(() => {
+      scrollToBottom()
+    }, 100)
   }, [messages])
 
   const sendMessage = async () => {
@@ -226,9 +229,7 @@ function ChatInterface() {
       // Use local symptom analyzer as fallback
       const analysis = analyzer.generateResponse(userMessage)
 
-      // Simulate typing delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
+      // Quick response for better UX - no delay
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: analysis.content,
@@ -285,7 +286,7 @@ function ChatInterface() {
           <div className="message assistant">
             <div className="message-content">
               <span className="typing-indicator">
-                Analyzing symptoms<span className="dots">...</span>
+                Analyzing<span className="dots">...</span>
               </span>
             </div>
           </div>
