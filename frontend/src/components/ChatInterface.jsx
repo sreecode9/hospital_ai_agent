@@ -100,7 +100,7 @@ class SymptomAnalyzer {
       this.conversationState.awaitingDuration = true
       return {
         type: 'question',
-        content: "How many days have you been experiencing these symptoms?",
+        content: "To give you the most helpful guidance, could you tell me:\n\n⏰ **How long have you been experiencing these symptoms?**\n\n*(For example: a few hours, 2 days, 1 week, etc.)*",
         riskLevel: null
       }
     }
@@ -129,31 +129,87 @@ class SymptomAnalyzer {
   }
 
   generateAssessmentResponse(riskLevel) {
-    const symptomSummary = this.conversationState.symptoms.length > 0
-      ? `Based on your description of ${this.conversationState.symptoms.join(', ')}`
-      : "Based on your symptoms"
+    const symptoms = this.conversationState.symptoms
+    const duration = this.conversationState.duration
 
-    let guidance = ""
+    // Create a more natural, conversational response
+    let response = ""
+
+    if (symptoms.length > 0) {
+      response += `I understand you're experiencing ${symptoms.join(' and ')}${duration ? ` for ${duration}` : ''}. `
+    } else {
+      response += "Thank you for sharing your symptoms with me. "
+    }
 
     switch (riskLevel) {
       case 'HIGH':
-        guidance = `\n\n**URGENT MEDICAL ATTENTION REQUIRED**\n\nThis symptom pattern requires IMMEDIATE medical attention. Please contact emergency services (911) or go to the nearest emergency room right away. Do not delay seeking professional medical care.`
+        response += `This sounds serious and requires **immediate medical attention**. 
+
+🚨 **Please seek emergency care right away:**
+• Call emergency services (911) or go to the nearest emergency room
+• Don't wait - these symptoms need urgent professional evaluation
+• If possible, have someone drive you or call for an ambulance
+
+**While waiting for help:**
+• Stay calm and try to remain still if possible
+• Don't eat or drink anything if you suspect a serious condition
+• Keep your phone with you for communication
+
+Your safety is the top priority - please get medical help immediately.`
         break
 
       case 'MODERATE':
-        guidance = `\n\n**MEDICAL EVALUATION RECOMMENDED**\n\nThese symptoms should be evaluated by a healthcare provider within 24-48 hours. Consider contacting your primary care physician or visiting an urgent care center for proper assessment.`
+        response += `These symptoms warrant **professional medical evaluation** within the next 24-48 hours.
+
+🏥 **Recommended next steps:**
+• Contact your primary care physician or schedule an appointment
+• Visit an urgent care center if you can't see your doctor soon
+• Consider calling your doctor's office for guidance
+
+**In the meantime:**
+• Rest and stay hydrated
+• Monitor your symptoms closely
+• Keep track of any changes (better/worse/same)
+• Avoid strenuous activities that might worsen symptoms
+
+**When you see your healthcare provider:**
+• Be ready to describe exactly what you've been experiencing
+• Mention how long symptoms have lasted and any patterns you've noticed
+• Ask about potential causes and treatment options
+
+Don't hesitate to seek care sooner if symptoms worsen or you're concerned.`
         break
 
       case 'LOW':
-        guidance = `\n\n**GENERAL HEALTH AWARENESS**\n\nWhile these symptoms may be concerning, they appear to be of lower urgency. Monitor your symptoms closely and consult a healthcare provider if they persist, worsen, or if you have any concerns.`
+        response += `These symptoms are **generally not an emergency** but it's still important to monitor them and know when to seek help.
+
+💚 **What you can do right now:**
+• **Rest and recover:** Get adequate sleep and stay hydrated
+• **Monitor your symptoms:** Keep track of how they change over time
+• **Self-care measures:** Over-the-counter remedies if appropriate (check with pharmacist)
+• **Healthy habits:** Eat nutritious foods and maintain light activity if possible
+
+**Know when to seek help:**
+• If symptoms worsen or don't improve within a few days
+• If you develop new symptoms
+• If you're feeling increasingly unwell
+• If you have any concerns or questions
+
+**Helpful tips:**
+• Keep a symptom diary noting when symptoms occur and what helps
+• Avoid triggers that might make symptoms worse
+• Consider gentle activities like walking or stretching if appropriate
+• Reach out to friends/family for support during recovery
+
+Most symptoms like these resolve on their own, but trust your instincts - if something doesn't feel right, don't hesitate to consult a healthcare professional.
+
+**Remember:** Even minor symptoms can sometimes indicate something important, so it's always better to be safe than sorry.`
         break
     }
 
-    const durationInfo = this.conversationState.duration
-      ? ` (lasting ${this.conversationState.duration})`
-      : ""
+    response += `\n\n---\n*This is general health information for awareness purposes only and does not replace professional medical advice, diagnosis, or treatment. Always consult qualified healthcare providers for personalized medical guidance.*`
 
-    return `${symptomSummary}${durationInfo}:\n\n**Risk level: ${riskLevel}**${guidance}\n\n*This information is for awareness only and does not replace professional medical advice.*`
+    return response
   }
 }
 
@@ -189,7 +245,18 @@ function ChatInterface() {
       setMessages([
         {
           role: 'assistant',
-          content: 'Hello! I\'m your AI-powered health awareness assistant. I can help you understand the possible seriousness of your symptoms and guide you on whether medical attention may be needed.\n\nPlease describe what symptoms you\'re experiencing, and I\'ll provide general health awareness guidance.',
+          content: `👋 **Hello! I'm here to help you with health concerns.**
+
+I'm an AI-powered health awareness assistant designed to help you understand your symptoms and guide you toward appropriate care. I can:
+
+🩺 **Analyze symptoms** and assess their potential seriousness
+📋 **Provide guidance** on when to seek medical attention
+💡 **Offer general health information** and self-care tips
+🤝 **Support you** in making informed healthcare decisions
+
+**Important:** I can provide general health information but **cannot diagnose conditions or replace professional medical advice**.
+
+*Please describe any symptoms you're experiencing, and I'll help you understand what they might mean and what steps to consider next.*`,
           riskLevel: null,
           timestamp: new Date().toLocaleTimeString()
         }
