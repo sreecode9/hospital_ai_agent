@@ -325,28 +325,42 @@ function ChatInterface() {
       </div>
 
       <div className="chat-input-container">
-        <input
-          type="text"
-          className="chat-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Describe your symptoms..."
-          disabled={loading}
-          style={{
-            backgroundColor: '#ffffff',
-            color: '#000000',
-            border: '2px solid rgba(148, 163, 184, 0.15)',
-            borderRadius: '3rem',
-            padding: '1.25rem 1.75rem',
-            fontSize: '1.05rem',
-            fontWeight: '450',
-            fontFamily: 'inherit',
-            outline: 'none',
-            width: '100%',
-            boxSizing: 'border-box'
-          }}
-        />
+        <div style={{
+          backgroundColor: '#ffffff',
+          border: '2px solid rgba(148, 163, 184, 0.15)',
+          borderRadius: '3rem',
+          padding: '0',
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          boxSizing: 'border-box',
+          transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        }}>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Describe your symptoms..."
+            disabled={loading}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#000000',
+              border: 'none',
+              borderRadius: '3rem',
+              padding: '1.25rem 1.75rem',
+              fontSize: '1.05rem',
+              fontWeight: '450',
+              fontFamily: 'inherit',
+              outline: 'none',
+              width: '100%',
+              boxSizing: 'border-box',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              appearance: 'none'
+            }}
+          />
+        </div>
         <button
           className="send-button"
           onClick={sendMessage}
