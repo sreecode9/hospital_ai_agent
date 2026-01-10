@@ -7,21 +7,39 @@ const API_URL = import.meta.env.VITE_API_URL ||
     ? 'https://hospital-ai-agent-backend.vercel.app/chat'
     : 'http://localhost:8000/chat')
 
-// Force refresh marker: v2.2 - Built at 2025-01-10
+// Modern UI Version: v3.0 - Ultra Modern Healthcare Interface
 
-// Simple response function for demo
-const getSimpleResponse = (message) => {
-  const responses = [
-    "Thank you for sharing your symptoms. This appears to be a common concern. Please consult a healthcare professional for proper evaluation.",
-    "I understand you're experiencing discomfort. While I can provide general information, please seek medical advice from a qualified professional.",
-    "Your symptoms warrant attention. Consider scheduling an appointment with your healthcare provider for a proper assessment.",
-    "Health concerns should always be evaluated by medical professionals. Please contact your doctor or healthcare provider.",
-    "This sounds important to address. While I can offer general guidance, professional medical evaluation is essential."
+// Advanced AI responses with better risk assessment
+const getAdvancedResponse = (message) => {
+  const responses = {
+    high: [
+      "🚨 **HIGH PRIORITY ALERT** 🚨\n\nThis symptom pattern requires IMMEDIATE medical attention. Please contact emergency services (911) or go to the nearest emergency room right away. Do not delay seeking professional medical care.",
+      "⚠️ **URGENT MEDICAL ATTENTION REQUIRED** ⚠️\n\nYour symptoms suggest a potentially serious condition. Call emergency services immediately or have someone take you to the nearest hospital emergency department.",
+      "🆘 **EMERGENCY SITUATION** 🆘\n\nBased on your description, this requires immediate professional medical intervention. Please seek emergency care without delay."
+    ],
+    moderate: [
+      "⚡ **MODERATE CONCERN** ⚡\n\nThese symptoms should be evaluated by a healthcare provider within 24-48 hours. Consider contacting your primary care physician or visiting an urgent care center.",
+      "📋 **MEDICAL EVALUATION RECOMMENDED** 📋\n\nYour symptoms warrant professional assessment. Please schedule an appointment with your healthcare provider or visit a clinic for proper evaluation.",
+      "🔍 **FURTHER ASSESSMENT NEEDED** 🔍\n\nThese symptoms suggest you should consult with a medical professional. Consider seeing your doctor or visiting an urgent care facility."
+    ],
+    low: [
+      "💚 **GENERAL HEALTH INFORMATION** 💚\n\nWhile these symptoms may be concerning, they appear to be of lower urgency. Monitor your symptoms and consult a healthcare provider if they persist or worsen.",
+      "ℹ️ **HEALTH AWARENESS** ℹ️\n\nThis seems to be a common health concern. Stay hydrated, rest well, and monitor your symptoms. Seek medical advice if symptoms persist or change.",
+      "📖 **GENERAL GUIDANCE** 📖\n\nThese symptoms are often manageable with self-care. However, if they persist or worsen, please consult with a healthcare professional for personalized advice."
+    ]
+  }
+
+  // Enhanced keyword-based risk assessment
+  const highRiskKeywords = [
+    'chest pain', 'difficulty breathing', 'severe headache', 'unconscious', 'bleeding heavily',
+    'heart attack', 'stroke', 'seizure', 'severe allergic reaction', 'poisoning',
+    'broken bone', 'dislocation', 'severe burn', 'electrocution', 'drowning'
   ]
-
-  // Simple keyword-based risk assessment
-  const highRiskKeywords = ['chest pain', 'difficulty breathing', 'severe headache', 'unconscious', 'bleeding heavily', 'heart attack', 'stroke']
-  const moderateRiskKeywords = ['fever', 'pain', 'nausea', 'dizziness', 'weakness', 'cough', 'rash']
+  const moderateRiskKeywords = [
+    'fever over 103', 'severe pain', 'persistent vomiting', 'blood in stool',
+    'blood in urine', 'confusion', 'severe dizziness', 'rapid heartbeat',
+    'difficulty swallowing', 'severe rash', 'eye injury', 'ear pain with fever'
+  ]
 
   const messageLower = message.toLowerCase()
   let riskLevel = 'low'
@@ -32,10 +50,14 @@ const getSimpleResponse = (message) => {
     riskLevel = 'moderate'
   }
 
+  const responseList = responses[riskLevel]
+  const response = responseList[Math.floor(Math.random() * responseList.length)]
+
   return {
-    response: responses[Math.floor(Math.random() * responses.length)],
+    response: response,
     risk_level: riskLevel,
-    disclaimer: true
+    disclaimer: true,
+    timestamp: new Date().toLocaleTimeString()
   }
 }
 
@@ -68,27 +90,52 @@ function ChatInterface() {
     setLoading(true)
 
     // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }])
+    setMessages(prev => [...prev, {
+      role: 'user',
+      content: userMessage,
+      timestamp: new Date().toLocaleTimeString()
+    }])
 
     try {
-      // Use simple response for now (backend is working but simplified)
-      const data = getSimpleResponse(userMessage)
+      // Try to call the backend first
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          session_id: sessionId.current
+        })
+      })
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      // Add assistant response
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.response || 'Thank you for sharing your symptoms.',
+          riskLevel: data.risk_level || 'low',
+          timestamp: new Date().toLocaleTimeString()
+        }])
+      } else {
+        // Fallback to local advanced response
+        const data = getAdvancedResponse(userMessage)
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          content: data.response,
+          riskLevel: data.risk_level,
+          timestamp: data.timestamp
+        }])
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      // Fallback to local response
+      const data = getAdvancedResponse(userMessage)
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: data.response,
-        riskLevel: data.risk_level
-      }])
-    } catch (error) {
-      console.error('Error:', error)
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again.',
-        riskLevel: null
+        riskLevel: data.risk_level,
+        timestamp: data.timestamp
       }])
     } finally {
       setLoading(false)
@@ -114,9 +161,17 @@ function ChatInterface() {
           <div key={idx} className={`message ${msg.role}`}>
             <div className="message-content">
               {msg.content}
+              {msg.timestamp && (
+                <div className="message-timestamp">
+                  {msg.timestamp}
+                </div>
+              )}
               {msg.riskLevel && (
                 <div className={`risk-badge risk-${msg.riskLevel}`}>
-                  Risk Level: {msg.riskLevel}
+                  {msg.riskLevel === 'high' && '🚨'}
+                  {msg.riskLevel === 'moderate' && '⚡'}
+                  {msg.riskLevel === 'low' && '💚'}
+                  {msg.riskLevel.toUpperCase()} PRIORITY
                 </div>
               )}
             </div>
