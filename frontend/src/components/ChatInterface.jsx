@@ -333,6 +333,19 @@ function ChatInterface() {
           onKeyPress={handleKeyPress}
           placeholder="Describe your symptoms..."
           disabled={loading}
+          style={{
+            backgroundColor: '#ffffff',
+            color: '#000000',
+            border: '2px solid rgba(148, 163, 184, 0.15)',
+            borderRadius: '3rem',
+            padding: '1.25rem 1.75rem',
+            fontSize: '1.05rem',
+            fontWeight: '450',
+            fontFamily: 'inherit',
+            outline: 'none',
+            width: '100%',
+            boxSizing: 'border-box'
+          }}
         />
         <button
           className="send-button"
