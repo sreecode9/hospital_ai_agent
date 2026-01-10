@@ -461,12 +461,8 @@
   border-radius: 3rem;
   font-size: 1.05rem;
   outline: none;
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(248, 250, 252, 0.9) 100%);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  color: #0f172a !important;
+  background: #ffffff !important;
+  color: #000000 !important;
   font-weight: 450;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   box-shadow:
@@ -482,16 +478,14 @@
     0 8px 24px rgba(102, 126, 234, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
   transform: translateY(-2px) scale(1.01);
-  background: linear-gradient(135deg,
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(248, 250, 252, 0.95) 100%);
-  color: #0f172a !important;
+  background: #ffffff !important;
+  color: #000000 !important;
 }
 
 .chat-input::placeholder {
-  color: #64748b !important;
+  color: #6b7280 !important;
   font-weight: 400;
-  opacity: 0.8;
+  opacity: 1 !important;
 }
 
 .chat-input:disabled {
@@ -695,13 +689,14 @@
   }
 
   .chat-input {
-    background: rgba(30, 41, 59, 0.9);
-    color: #e2e8f0;
+    background: #ffffff !important;
+    color: #000000 !important;
     border-color: rgba(255, 255, 255, 0.2);
   }
 
   .chat-input::placeholder {
-    color: #64748b;
+    color: #6b7280 !important;
+    opacity: 1 !important;
   }
 
   .chat-input:disabled {
